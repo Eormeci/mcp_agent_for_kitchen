@@ -1,0 +1,1 @@
+Bu kod mcp server && client kavramlarÄ±nÄ± anlamak iÃ§in yazÄ±ldÄ± . 
