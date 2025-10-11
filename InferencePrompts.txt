@@ -1,0 +1,5 @@
+To list tables inside db ;
+=> list the tables inside kitchen.db
+
+To read the tables inside db;
+=> can you read the materials table inside the kitchen.db ?

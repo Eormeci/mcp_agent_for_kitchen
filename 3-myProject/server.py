@@ -24,6 +24,25 @@ async def list_tables(db_path: str) -> Dict[str, Any]:
     except Exception as e:
         return {"error": str(e)}
 
+@mcp.tool()
+async def read_table(db_path: str, table_name: str, limit: int = 10) -> Dict[str, Any]:
+    """Read the given table and bring the content"""
+    try:
+        with connect_db(db_path) as conn:
+            cur = conn.execute(f"SELECT * FROM {table_name} LIMIT ?", (limit,))
+            rows = [dict(r) for r in cur.fetchall()]
+            
+            # Sütun isimlerini de al
+            column_names = [desc[0] for desc in cur.description] if cur.description else []
+            
+            return {
+                "table": table_name,
+                "columns": column_names,
+                "rows": rows,
+                "count": len(rows)
+            }
+    except Exception as e:
+        return {"error": str(e)}
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="MCP SQLite Reader Service")

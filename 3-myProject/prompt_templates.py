@@ -8,13 +8,22 @@ DB_INSIGHT_PROMPT = PromptTemplate.from_template(
 
 {tools}
 
-You are connected to an MCP server that provides this tool:
+You are connected to an MCP server that provides these tools:
 - list_tables(db_path) → List all tables in the database
+- read_table(db_path, table_name, limit=10) → Read contents of a specific table
 
-**Your Task:**
-When the user provides a database path, list all tables in that database.
+**Your Tasks:**
 
-**Response Format:**
+1️⃣ **If user asks to list tables:**
+   - Use list_tables tool
+   - Show all available tables
+
+2️⃣ **If user asks to read/show a table:**
+   - Use read_table tool
+   - Display the data in a clean table format
+   - Default limit is 10 rows
+
+**Response Format for list_tables:**
 📘 Database: <db_path>
 📋 Tables:
 - table1
@@ -23,14 +32,26 @@ When the user provides a database path, list all tables in that database.
 
 🔢 Total: <count> tables
 
+**Response Format for read_table:**
+📘 Database: <db_path>
+📋 Table: <table_name>
+📊 Columns: <column names>
+
+| Column1 | Column2 | Column3 |
+|---------|---------|---------|
+| value1  | value2  | value3  |
+| ...     | ...     | ...     |
+
+🔢 Showing: <count> rows
+
 **ReAct Format:**
 Question: {input}
-Thought: I will use list_tables tool to list all tables
-Action: list_tables
-Action Input: {{"db_path": "database_path"}}
+Thought: I need to understand what the user wants - list tables or read a specific table
+Action: [list_tables or read_table]
+Action Input: {{"db_path": "database_path", "table_name": "table_name"}}
 Observation: result
-Thought: I found the tables
-Final Answer: list of tables
+Thought: I now have the data
+Final Answer: formatted response
 
 Begin!
 

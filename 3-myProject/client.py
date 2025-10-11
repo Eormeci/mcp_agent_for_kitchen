@@ -2,7 +2,7 @@ import asyncio
 import os
 import sys
 from llama_index.tools.mcp import BasicMCPClient, McpToolSpec
-from llama_index.core.agent.workflow import ReActAgent
+from llama_index.core.agent.workflow.react_agent import ReActAgent
 from llama_index.llms.ollama import Ollama
 from prompt_templates import DB_INSIGHT_PROMPT
 
@@ -22,6 +22,8 @@ async def setup_agent():
         print("Fetching available tools...")
         tools = await McpToolSpec(client=mcp_client).to_tool_list_async()
         print(f"Found {len(tools)} tools")
+        for i, tool in enumerate(tools):
+            print(f"  Tool {i+1}: {tool.metadata.name}")
         
         # Initialize Ollama LLM
         print(f"Initializing Ollama with model {MODEL_NAME}...")
