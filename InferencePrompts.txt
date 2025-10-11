@@ -1,5 +1,11 @@
 To list tables inside db ;
-=> list the tables inside kitchen.db
+=> List the tables inside kitchen.db .
 
 To read the tables inside db;
-=> can you read the materials table inside the kitchen.db ?
+=> Can you read the materials table inside the kitchen.db ?
+
+To bring the out of stock products ;
+=> Show out of stock items in materials table in kitchen.db .
+
+To bring the in stock products ;
+=> Show me items that are in stock in materials table from kitchen.db

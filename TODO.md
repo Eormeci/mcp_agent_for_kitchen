@@ -6,7 +6,7 @@
 
 ## 📦 Stock Management
 - [x] Fetch items **not in stock**  
-- [ ] Fetch items **in stock**  
+- [x] Fetch items **in stock**  
 
 ## ➕ CRUD Operations
 - [ ] Add operation  

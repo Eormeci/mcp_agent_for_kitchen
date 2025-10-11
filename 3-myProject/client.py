@@ -53,12 +53,6 @@ async def main():
     """Main function to run the SQLite database assistant"""
     print("\n🗄️ SQLite Database Assistant 🗄️")
     print("-" * 50)
-    print("Ask me to list tables in your SQLite databases!")
-    print("Examples:")
-    print("  • List all tables in kitchen.db")
-    print("  • Show me the tables in mydata.db")
-    print("\nType 'exit' or 'quit' to end the session.")
-    print("-" * 50)
     
     print("Make sure the MCP SQLite server is running with:")
     print("python mcp_sqlite_reader.py --connection_type http --port 3002")
