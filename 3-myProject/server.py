@@ -44,6 +44,32 @@ async def read_table(db_path: str, table_name: str, limit: int = 10) -> Dict[str
     except Exception as e:
         return {"error": str(e)}
 
+@mcp.tool()
+async def get_out_of_stock(db_path: str, table_name: str) -> Dict[str, Any]:
+    """Get ALL items where in_stock=0 (out of stock items)"""
+    try:
+        with connect_db(db_path) as conn:
+            # Önce kaç tane var kontrol et
+            count_cur = conn.execute(f"SELECT COUNT(*) FROM {table_name} WHERE in_stock = 0")
+            total_count = count_cur.fetchone()[0]
+            
+            # Sonra hepsini getir
+            cur = conn.execute(f"SELECT * FROM {table_name} WHERE in_stock = 0")
+            rows = [dict(r) for r in cur.fetchall()]
+            
+            column_names = [desc[0] for desc in cur.description] if cur.description else []
+            
+            return {
+                "table": table_name,
+                "columns": column_names,
+                "out_of_stock_items": rows,
+                "total_in_db": total_count,
+                "returned_count": len(rows),
+                "message": f"Found {total_count} out of stock items"
+            }
+    except Exception as e:
+        return {"error": str(e)}
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="MCP SQLite Reader Service")
     parser.add_argument("--connection_type", type=str, default="http", choices=["http", "stdio"])
