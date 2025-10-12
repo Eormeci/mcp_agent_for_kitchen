@@ -102,13 +102,7 @@ async def get_in_stock(db_path: str, table_name: str) -> Dict[str, Any]:
         return {"error": str(e)}
         
 @mcp.tool()
-async def add_item(
-    db_path: str, 
-    table_name: str,
-    item_name: str,
-    quantity: int = 0,
-    in_stock: int = 0
-) -> Dict[str, Any]:
+async def add_item( db_path: str, table_name: str,item_name: str,quantity: int = 0,in_stock: int = 0) -> Dict[str, Any]:
     """Add a new item to the table"""
     try:
         with connect_db_write(db_path) as conn:
@@ -142,6 +136,121 @@ async def add_item(
             "success": False,
             "error": str(e)
         }
+
+@mcp.tool()
+async def delete_item(db_path: str, table_name: str,item_name: str) -> Dict[str, Any]:
+    """Delete an item from the table by its name"""
+    try:
+        with connect_db_write(db_path) as conn:
+            # Önce item'ın var olup olmadığını kontrol et
+            check_cur = conn.execute(
+                f"SELECT * FROM {table_name} WHERE item_name = ?",
+                (item_name,)
+            )
+            item = check_cur.fetchone()
+            
+            if not item:
+                return {
+                    "success": False,
+                    "message": f"Item '{item_name}' not found in table {table_name}"
+                }
+            
+            # Item bilgilerini sakla
+            deleted_item = dict(item)
+            
+            # Item'ı sil
+            conn.execute(
+                f"DELETE FROM {table_name} WHERE item_name = ?",
+                (item_name,)
+            )
+            conn.commit()
+            
+            return {
+                "success": True,
+                "message": f"Item '{item_name}' deleted successfully",
+                "deleted_item": deleted_item
+            }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+
+@mcp.tool()
+async def update_item(db_path: str, table_name: str,item_name: str,new_item_name: str = None,quantity: int = None,in_stock: int = None) -> Dict[str, Any]:
+    """Update an existing item in the table by its name"""
+    try:
+        with connect_db_write(db_path) as conn:
+            # Önce item'ın var olup olmadığını kontrol et
+            check_cur = conn.execute(
+                f"SELECT * FROM {table_name} WHERE item_name = ?",
+                (item_name,)
+            )
+            old_item = check_cur.fetchone()
+            
+            if not old_item:
+                return {
+                    "success": False,
+                    "message": f"Item '{item_name}' not found in table {table_name}"
+                }
+            
+            # Eski item bilgilerini sakla
+            old_item_dict = dict(old_item)
+            
+            # Güncellenecek alanları belirle
+            updates = []
+            params = []
+            
+            if new_item_name is not None:
+                updates.append("item_name = ?")
+                params.append(new_item_name)
+            
+            if quantity is not None:
+                updates.append("quantity = ?")
+                params.append(quantity)
+            
+            if in_stock is not None:
+                updates.append("in_stock = ?")
+                params.append(in_stock)
+            
+            # updated_at her zaman güncellenir
+            updates.append("updated_at = CURRENT_TIMESTAMP")
+            
+            if len(updates) == 1:  # Sadece updated_at varsa
+                return {
+                    "success": False,
+                    "message": "No fields to update"
+                }
+            
+            # UPDATE query'sini oluştur
+            update_query = f"UPDATE {table_name} SET {', '.join(updates)} WHERE item_name = ?"
+            params.append(item_name)
+            
+            # Güncelleme yap
+            conn.execute(update_query, params)
+            conn.commit()
+            
+            # Güncellenmiş item'ı getir (isim değiştiyse yeni isimle ara)
+            search_name = new_item_name if new_item_name else item_name
+            updated_cur = conn.execute(
+                f"SELECT * FROM {table_name} WHERE item_name = ?",
+                (search_name,)
+            )
+            updated_item = dict(updated_cur.fetchone())
+            
+            return {
+                "success": True,
+                "message": f"Item '{item_name}' updated successfully",
+                "old_item": old_item_dict,
+                "updated_item": updated_item
+            }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="MCP SQLite Reader Service")

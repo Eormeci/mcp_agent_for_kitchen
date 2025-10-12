@@ -13,4 +13,8 @@ To bring the in stock products ;
 To add item to db ;
 => Add a new item to the materials table inside kitchen.db : item_name='Spatula', quantity=15, in_stock=1
 
+To remove item from db;
+=> Remove this item from the materials table inside kitchen.db : item_name='Oklava'
 
+To update item from db;
+=> Update this item in the materials table inside kitchen.db : item_name='Cooking Pot' to  item_name='Cooking Pot New Name'

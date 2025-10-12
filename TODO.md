@@ -9,7 +9,7 @@
 - [x] Fetch items **in stock**  
 
 ## ➕ CRUD Operations
-- [ ] Add operation  
+- [x] Add operation  
 - [ ] Remove operation  
 - [ ] Update operation  
 
