@@ -12,6 +12,11 @@ def connect_db(db_path: str):
     conn.row_factory = sqlite3.Row
     return conn
 
+def connect_db_write(db_path: str):
+    """Connect database (write mode)"""
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    return conn
 
 @mcp.tool()
 async def list_tables(db_path: str) -> Dict[str, Any]:
@@ -96,6 +101,48 @@ async def get_in_stock(db_path: str, table_name: str) -> Dict[str, Any]:
     except Exception as e:
         return {"error": str(e)}
         
+@mcp.tool()
+async def add_item(
+    db_path: str, 
+    table_name: str,
+    item_name: str,
+    quantity: int = 0,
+    in_stock: int = 0
+) -> Dict[str, Any]:
+    """Add a new item to the table"""
+    try:
+        with connect_db_write(db_path) as conn:
+            # Timestamp otomatik olarak CURRENT_TIMESTAMP ile eklenir
+            cur = conn.execute(
+                f"""INSERT INTO {table_name} 
+                    (item_name, quantity, in_stock, updated_at) 
+                    VALUES (?, ?, ?, CURRENT_TIMESTAMP)""",
+                (item_name, quantity, in_stock)
+            )
+            conn.commit()
+            
+            # Eklenen item'ın ID'sini al
+            inserted_id = cur.lastrowid
+            
+            # Eklenen item'ı kontrol et
+            check_cur = conn.execute(
+                f"SELECT * FROM {table_name} WHERE id = ?",
+                (inserted_id,)
+            )
+            inserted_row = dict(check_cur.fetchone())
+            
+            return {
+                "success": True,
+                "message": f"Item '{item_name}' added successfully",
+                "inserted_id": inserted_id,
+                "inserted_item": inserted_row
+            }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="MCP SQLite Reader Service")
     parser.add_argument("--connection_type", type=str, default="http", choices=["http", "stdio"])

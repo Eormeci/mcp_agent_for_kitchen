@@ -9,3 +9,8 @@ To bring the out of stock products ;
 
 To bring the in stock products ;
 => Show me items that are in stock in materials table from kitchen.db
+
+To add item to db ;
+=> Add a new item to the materials table inside kitchen.db : item_name='Spatula', quantity=15, in_stock=1
+
+
